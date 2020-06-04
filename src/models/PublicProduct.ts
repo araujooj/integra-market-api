@@ -1,6 +1,4 @@
-// supermarket that consumes this model
-
-class StockProduct {
+class PublicProduct {
     id: string;
 
     name: string;
@@ -9,9 +7,11 @@ class StockProduct {
 
     image: string;
 
+    promotion: boolean;
+
     created_at: Date;
 
     updated_at: Date;
 }
 
-export default StockProduct
+export default PublicProduct;

@@ -1,4 +1,3 @@
-import Address from './Address'
 
 class User {
   id: string;
@@ -9,11 +8,13 @@ class User {
 
   password: string;
 
-  manager: boolean;
+  // orders: string;
 
-  orders: string;
+  privateProducts: string;
 
-  address: Address;
+  publicProducts: string;
+
+  apiKey: string;
 
   created_at: Date;
 
