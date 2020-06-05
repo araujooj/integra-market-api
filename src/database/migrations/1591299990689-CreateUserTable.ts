@@ -1,6 +1,6 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
-export default class CreateUserTable1591294437127 implements MigrationInterface {
+export default class CreateUserTable1591299990689 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
@@ -33,13 +33,8 @@ export default class CreateUserTable1591294437127 implements MigrationInterface 
                         isNullable: true,
                     },
                     {
-                        name: 'private_products',
-                        type: 'varchar',
-                        isNullable: true,
-                    },
-                    {
-                        name: 'public_products',
-                        type: 'varchar',
+                        name: 'products_id',
+                        type: 'uuid',
                         isNullable: true,
                     },
 
@@ -56,9 +51,23 @@ export default class CreateUserTable1591294437127 implements MigrationInterface 
                 ],
             }),
         );
+
+
+        await queryRunner.createForeignKey(
+            'users',
+            new TableForeignKey({
+                columnNames: ['products_id'],
+                referencedColumnNames: ['id'],
+                referencedTableName: 'products',
+                onDelete: 'SET NULL',
+                onUpdate: 'CASCADE',
+            }),
+        );
     }
+
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.dropTable('users');
     }
+
 }

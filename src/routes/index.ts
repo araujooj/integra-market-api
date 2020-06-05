@@ -1,24 +1,20 @@
 import { Router } from 'express';
 
-import privateProductsRouter from './privateProducts.routes';
-import publicProductsRouter from './publicProducts.routes';
+import productRouter from './product.routes';
 import orderRouter from './order.routes';
-import userRouter from './user.routes';
+import marketRouter from './market.routes';
 import sessionRouter from './sessions.routes';
 
 const routes = Router();
 
-// Private Stock - Only the supermarket can control this.
-routes.use('/privateProducts', privateProductsRouter);
-
-// Public Stock - Endpoint to B2C consumer
-routes.use('/publicProducts', publicProductsRouter);
+// Stock - Endpoint to B2C consumer
+routes.use('/products', productRouter);
 
 // Order receive from B2C API
 routes.use('/order', orderRouter);
 
 // CRUD Users (Market)
-routes.use('/users', userRouter);
+routes.use('/market', marketRouter);
 
 // Auth Service
 routes.use('/sessions', sessionRouter);

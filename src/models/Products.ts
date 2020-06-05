@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import User from "./User";
 
-@Entity()
-class PublicProduct {
+@Entity('products')
+class Product {
     @PrimaryGeneratedColumn()
     id: string;
 
@@ -26,8 +26,11 @@ class PublicProduct {
     @Column()
     category: string;
 
-    @ManyToOne(() => User, user => user.publicProducts, { eager: true })
-    @JoinColumn({ name: 'public_products' })
+    @Column()
+    secret: boolean;
+
+    @ManyToOne(() => User, user => user.products, { eager: true })
+    @JoinColumn({ name: 'market_id' })
     market: User;
 
     @Column()
@@ -40,4 +43,4 @@ class PublicProduct {
     updated_at: Date;
 }
 
-export default PublicProduct;
+export default Product;

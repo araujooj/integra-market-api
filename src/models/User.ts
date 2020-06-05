@@ -7,8 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import PrivateProduct from './PrivateProduct';
-import PublicProduct from './PublicProduct';
+import Product from './Products';
 
 @Entity('users')
 class User {
@@ -26,16 +25,15 @@ class User {
 
   // orders: string;
 
-  @OneToMany(() => PrivateProduct, privateProduct => privateProduct.market)
-  privateProducts: PrivateProduct;
-
-  @OneToMany(() => PublicProduct, publicProduct => publicProduct.market)
-  publicProducts: PublicProduct;
+  @OneToMany(() => Product, product => product.market)
+  products: Product;
 
   @Column()
   avatar: string;
 
   // apiKey: string;
+
+  // city: string;
 
   @CreateDateColumn()
   created_at: Date;
