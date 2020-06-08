@@ -14,8 +14,5 @@ orderRouter.delete('/:id', async (request, response) => {
     // TODO
 });
 
-orderRouter.post('/import', async (request, response) => {
-    // TODO
-});
 
 export default orderRouter;

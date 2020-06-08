@@ -2,7 +2,7 @@ import { getRepository } from 'typeorm';
 import encrypt from '../../utils/encrypt';
 import AppError from '../../errors/AppError';
 import Product from '../../models/Products';
-import User from '../../models/User';
+import Market from '../../models/Market';
 
 interface Request {
     name: string;
@@ -17,9 +17,9 @@ interface Request {
 export default class CreateProductService {
     public async execute({ name, price, promotion, category, market_id, secret }: Request): Promise<Product> {
         const productRepo = getRepository(Product);
-        const userRepo = getRepository(User)
+        const marketRepo = getRepository(Market)
 
-        const market = await userRepo.findOne(market_id)
+        const market = await marketRepo.findOne(market_id)
 
         if (!market) {
             throw new AppError('You need to inform which one supermarket have this product', 401)

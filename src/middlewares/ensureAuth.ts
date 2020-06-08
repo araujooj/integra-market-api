@@ -22,7 +22,7 @@ export default function ensureAuth(req: Request, res: Response, next: NextFuncti
     const decoded = verify(token, secret);
     const { sub } = decoded as TokenPayload;
 
-    req.user = {
+    req.market = {
         id: sub,
     };
 

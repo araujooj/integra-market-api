@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
 import uploadConfig from '../config/upload';
-import CreateUserService from '../services/Users /CreateUserService';
-import UpdateUserAvatarService from '../services/Users /UpdateUserAvatarService';
+import CreateMarketService from '../services/Market/CreateMarketService';
+import UpdateMarketAvatarService from '../services/Market/UpdateMarketAvatarService';
 import ensureAuth from '../middlewares/ensureAuth';
 
 const marketRouter = Router();
@@ -13,34 +13,33 @@ marketRouter.use(ensureAuth)
 marketRouter.post('/', async (req, res) => {
     const { name, email, password } = req.body;
 
-    const createUser = new CreateUserService();
+    const createMarket = new CreateMarketService();
 
-    const user = await createUser.execute({
+    const market = await createMarket.execute({
         name,
         email,
         password,
     });
 
-    delete user.password;
+    delete market.password;
 
-    return res.json(user);
+    return res.json(market);
 });
 
 marketRouter.patch(
     '/avatar',
-    ensureAuth,
     upload.single('avatar'),
     async (req, res) => {
-        const updateUserAvatar = new UpdateUserAvatarService();
+        const updateMarket = new UpdateMarketAvatarService();
 
-        const user = await updateUserAvatar.execute({
-            user_id: req.user.id,
+        const market = await updateMarket.execute({
+            market_id: req.market.id,
             avatarFilename: req.file.filename,
         });
 
-        delete user.password;
+        delete market.password;
 
-        return res.json(user);
+        return res.json(market);
     },
 );
 

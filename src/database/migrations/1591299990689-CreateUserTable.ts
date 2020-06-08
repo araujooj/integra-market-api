@@ -5,7 +5,7 @@ export default class CreateUserTable1591299990689 implements MigrationInterface 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: 'users',
+                name: 'market',
                 columns: [
                     {
                         name: 'id',
@@ -54,7 +54,7 @@ export default class CreateUserTable1591299990689 implements MigrationInterface 
 
 
         await queryRunner.createForeignKey(
-            'users',
+            'market',
             new TableForeignKey({
                 columnNames: ['products_id'],
                 referencedColumnNames: ['id'],
@@ -67,7 +67,7 @@ export default class CreateUserTable1591299990689 implements MigrationInterface 
 
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable('users');
+        await queryRunner.dropTable('market');
     }
 
 }

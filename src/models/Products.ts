@@ -7,7 +7,7 @@ import {
     ManyToOne,
     JoinColumn
 } from 'typeorm';
-import User from "./User";
+import Market from "./Market";
 
 @Entity('products')
 class Product {
@@ -29,9 +29,9 @@ class Product {
     @Column()
     secret: boolean;
 
-    @ManyToOne(() => User, user => user.products, { eager: true })
+    @ManyToOne(() => Market, market => market.products, { eager: true })
     @JoinColumn({ name: 'market_id' })
-    market: User;
+    market: Market;
 
     @Column()
     promotion: boolean;

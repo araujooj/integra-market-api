@@ -1,7 +1,7 @@
 import { getRepository } from 'typeorm';
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import User from '../../models/User';
+import Market from '../../models/Market';
 import authConfig from '../../config/auth';
 import AppError from '../../errors/AppError';
 
@@ -11,23 +11,23 @@ interface Request {
 }
 
 interface Response {
-    user: User;
+    market: Market;
     token: string;
 }
 
 export default class AuthService {
     public async execute({ email, password }: Request): Promise<Response> {
-        const userRepository = getRepository(User);
+        const marketRepository = getRepository(Market);
 
-        const user = await userRepository.findOne({
+        const market = await marketRepository.findOne({
             where: { email },
         });
 
-        if (!user) {
+        if (!market) {
             throw new AppError('Incorrect email / password combination', 401);
         }
 
-        const passwordMatch = await compare(password, user.password);
+        const passwordMatch = await compare(password, market.password);
 
         if (!passwordMatch) {
             throw new AppError('Incorrect email / password combination', 401);
@@ -36,12 +36,12 @@ export default class AuthService {
         const { secret, expiresIn } = authConfig.jwt;
 
         const token = sign({}, secret, {
-            subject: user.id,
+            subject: market.id,
             expiresIn,
         });
 
         return {
-            user,
+            market,
             token,
         };
     }

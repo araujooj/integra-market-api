@@ -6,15 +6,15 @@ const sessionRouter = Router();
 sessionRouter.post('/', async (req, res) => {
     const { email, password } = req.body;
 
-    const authUser = new AuthService();
+    const authMarket = new AuthService();
 
-    const { user, token } = await authUser.execute({
+    const { market, token } = await authMarket.execute({
         email, password,
     });
 
-    delete user.password;
+    delete market.password;
 
-    return res.json({ user, token });
+    return res.json({ market, token });
 });
 
 export default sessionRouter;

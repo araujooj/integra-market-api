@@ -13,7 +13,7 @@ routes.use('/products', productRouter);
 // Order receive from B2C API
 routes.use('/order', orderRouter);
 
-// CRUD Users (Market)
+// CRUD (Market)
 routes.use('/market', marketRouter);
 
 // Auth Service

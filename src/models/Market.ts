@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import Product from './Products';
 
-@Entity('users')
-class User {
+@Entity('market')
+class Market {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -42,4 +42,4 @@ class User {
   updated_at: Date;
 }
 
-export default User;
+export default Market;
