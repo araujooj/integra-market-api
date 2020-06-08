@@ -1,8 +1,9 @@
-import { getRepository } from 'typeorm';
+import { getRepository, getCustomRepository } from 'typeorm';
 import encrypt from '../../utils/encrypt';
 import AppError from '../../errors/AppError';
 import Product from '../../models/Products';
 import Market from '../../models/Market';
+import ProductRepository from '../../repositories/productRepository';
 
 interface Request {
     name: string;
@@ -16,7 +17,7 @@ interface Request {
 
 export default class CreateProductService {
     public async execute({ name, price, promotion, category, market_id, secret }: Request): Promise<Product> {
-        const productRepo = getRepository(Product);
+        const productRepo = getCustomRepository(ProductRepository);
         const marketRepo = getRepository(Market)
 
         const market = await marketRepo.findOne(market_id)

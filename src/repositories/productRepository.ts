@@ -1,12 +1,13 @@
-import { getRepository } from 'typeorm';
-import decrypt from '../../utils/decrypt';
-import AppError from '../../errors/AppError';
-import Product from '../../models/Products';
-import Market from '../../models/Market';
+import { EntityRepository, Repository, getRepository } from 'typeorm';
+import AppError from '../errors/AppError';
+import decrypt from '../utils/decrypt';
+import Market from '../models/Market';
+import Product from '../models/Products';
 
-export default class FindAndDecryptService {
-    public async execute(market_id: string): Promise<Product[] | undefined> {
-        const productRepository = getRepository(Product);
+
+@EntityRepository(Product)
+class ProductRepository extends Repository<Product> {
+    public async findAndDecrypt(market_id: string): Promise<Product[]> {
 
         const marketRepo = getRepository(Market)
 
@@ -16,7 +17,7 @@ export default class FindAndDecryptService {
             throw new AppError('You need to inform which one supermarket have this product', 401)
         }
 
-        const products = await productRepository.find({
+        const products = await this.find({
             where: {
                 secret: true,
                 market: market_id
@@ -32,3 +33,5 @@ export default class FindAndDecryptService {
         return products;
     }
 }
+
+export default ProductRepository;

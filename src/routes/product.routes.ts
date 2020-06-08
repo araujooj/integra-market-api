@@ -1,36 +1,17 @@
 import { Router } from 'express';
-import { getRepository, Like } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import ensureAuth from '../middlewares/ensureAuth'
+import ProductRepository from '../repositories/productRepository';
 import CreateProductService from '../services/Products/CreateProductService';
-import Product from '../models/Products';
-import FindAndDecryptService from '../services/Products/FindAndDecryptService';
+import usePagination from '../middlewares/usePagination';
 
 const productRouter = Router();
 
+productRouter.use(usePagination)
+
 productRouter.get('/public/:marketId', async (request, response) => {
-    // TODO - Abstract this on a middleware
-    let { perPage, page, } = request.query;
-    const { ...q } = request.query;
-    let realPage: number;
-    let realTake: number;
-    if (perPage) realTake = +perPage;
-    else {
-        perPage = '10';
-        realTake = 10;
-    }
-    if (page) realPage = +page === 1 ? 0 : (+page - 1) * realTake;
-    else {
-        realPage = 0;
-        page = '1';
-    }
-    const findOptions = {
-        take: realTake,
-        skip: realPage,
-        where: { ...q },
-    };
-    if (!q) delete findOptions.where;
     const { marketId } = request.params
-    const productRepository = getRepository(Product);
+    const productRepository = getCustomRepository(ProductRepository);
 
     const products = await productRepository.find(
         {
@@ -38,8 +19,8 @@ productRouter.get('/public/:marketId', async (request, response) => {
                 market: marketId,
                 secret: false,
             },
-            skip: realPage,
-            take: realTake,
+            skip: request.pagination.realPage,
+            take: request.pagination.realTake,
         }
     )
 
@@ -48,7 +29,7 @@ productRouter.get('/public/:marketId', async (request, response) => {
 
 productRouter.get('/public/:marketId/:productId', async (request, response) => {
     const { marketId, productId } = request.params
-    const productRepository = getRepository(Product);
+    const productRepository = getCustomRepository(ProductRepository);
 
     const product = await productRepository.findOne(
         {
@@ -66,9 +47,9 @@ productRouter.get('/public/:marketId/:productId', async (request, response) => {
 productRouter.use(ensureAuth)
 
 productRouter.get('/private', async (request, response) => {
-    const findProducts = new FindAndDecryptService
+    const productRepository = getCustomRepository(ProductRepository);
     const market_id = request.market.id;
-    const products = await findProducts.execute(market_id)
+    const products = await productRepository.findAndDecrypt(market_id)
 
     return response.json(products)
 });
@@ -93,7 +74,7 @@ productRouter.post('/create', async (request, response) => {
 productRouter.put('/change/:id', async (request, response) => {
     const { id } = request.params;
 
-    const productRepository = getRepository(Product);
+    const productRepository = getCustomRepository(ProductRepository);
 
     const product = await productRepository.findOne({
         where: id
