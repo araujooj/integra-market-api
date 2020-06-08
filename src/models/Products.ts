@@ -29,9 +29,11 @@ class Product {
     @Column()
     secret: boolean;
 
-    @ManyToOne(() => Market, market => market.products, { eager: true })
+    @ManyToOne(() => Market, market => market.products, { eager: false })
     @JoinColumn({ name: 'market_id' })
     market: Market;
+
+    //* quantity: "KG" | "G" | "UN" */
 
     @Column()
     promotion: boolean;
