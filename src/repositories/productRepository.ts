@@ -4,10 +4,16 @@ import decrypt from '../utils/decrypt';
 import Market from '../models/Market';
 import Product from '../models/Products';
 
+interface Request {
+    market_id: string;
+    skip: number;
+    take: number;
+}
+
 
 @EntityRepository(Product)
 class ProductRepository extends Repository<Product> {
-    public async findAndDecrypt(market_id: string): Promise<Product[]> {
+    public async findAndDecrypt({ market_id, skip, take }: Request): Promise<Product[]> {
 
         const marketRepo = getRepository(Market)
 
@@ -22,6 +28,8 @@ class ProductRepository extends Repository<Product> {
                 secret: true,
                 market: market_id
             },
+            skip,
+            take,
             loadEagerRelations: false,
         });
 

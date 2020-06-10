@@ -1,0 +1,18 @@
+version: "2"
+services:
+  integra-market-api: 
+    image: araujooj/integra-market-api
+    ports: 
+      - 80:3000
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:docker@db:5432/integra_market
+      - PORT=3000   
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=integra_market

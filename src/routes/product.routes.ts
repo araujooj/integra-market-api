@@ -4,6 +4,7 @@ import ensureAuth from '../middlewares/ensureAuth'
 import ProductRepository from '../repositories/productRepository';
 import CreateProductService from '../services/Products/CreateProductService';
 import usePagination from '../middlewares/usePagination';
+import UpdateProductService from '../services/Products/UpdateProductService';
 
 const productRouter = Router();
 
@@ -49,7 +50,11 @@ productRouter.use(ensureAuth)
 productRouter.get('/private', async (request, response) => {
     const productRepository = getCustomRepository(ProductRepository);
     const market_id = request.market.id;
-    const products = await productRepository.findAndDecrypt(market_id)
+    const products = await productRepository.findAndDecrypt({
+        market_id,
+        skip: request.pagination.realPage,
+        take: request.pagination.realTake,
+    })
 
     return response.json(products)
 });
@@ -71,13 +76,20 @@ productRouter.post('/create', async (request, response) => {
     return response.json(product)
 });
 
-productRouter.put('/change/:id', async (request, response) => {
-    const { id } = request.params;
+productRouter.put('/change/:product_id', async (request, response) => {
+    const { name, price, promotion, category, secret } = request.body;
+    const { product_id } = request.params;
 
-    const productRepository = getCustomRepository(ProductRepository);
+    const updateProduct = new UpdateProductService;
 
-    const product = await productRepository.findOne({
-        where: id
+    const product = await updateProduct.execute({
+        name,
+        product_id,
+        price,
+        promotion,
+        category,
+        secret,
+        market_id: request.market.id
     })
 
     return response.json(product)
