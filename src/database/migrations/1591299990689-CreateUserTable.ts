@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
 export default class CreateUserTable1591299990689 implements MigrationInterface {
 
@@ -33,12 +33,6 @@ export default class CreateUserTable1591299990689 implements MigrationInterface 
                         isNullable: true,
                     },
                     {
-                        name: 'products_id',
-                        type: 'uuid',
-                        isNullable: true,
-                    },
-
-                    {
                         name: 'created_at',
                         type: 'timestamp',
                         default: 'now()',
@@ -52,17 +46,6 @@ export default class CreateUserTable1591299990689 implements MigrationInterface 
             }),
         );
 
-
-        await queryRunner.createForeignKey(
-            'market',
-            new TableForeignKey({
-                columnNames: ['products_id'],
-                referencedColumnNames: ['id'],
-                referencedTableName: 'products',
-                onDelete: 'SET NULL',
-                onUpdate: 'CASCADE',
-            }),
-        );
     }
 
 

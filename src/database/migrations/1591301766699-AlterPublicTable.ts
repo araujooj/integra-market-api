@@ -16,7 +16,7 @@ export default class AlterPublicTable1591301766699 implements MigrationInterface
             columnNames: ['market_id'],
             referencedColumnNames: ['id'],
             referencedTableName: 'market',
-            onDelete: 'SET NULL',
+            onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         }));
     }

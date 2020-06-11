@@ -14,11 +14,13 @@ interface Request {
     category: string;
     market_id: string;
     secret: boolean;
+    unit: "KG" | "G" | "UN";
+    quantity: number;
 }
 
 
 export default class CreatePrivateProductService {
-    public async execute({ name, price, promotion, category, market_id, secret }: Request): Promise<Product> {
+    public async execute({ name, price, promotion, category, market_id, secret, unit, quantity }: Request): Promise<Product> {
         const productRepo = getCustomRepository(ProductRepository);
         const categoryRepo = getRepository(Category);
         const marketRepo = getRepository(Market)
@@ -57,7 +59,9 @@ export default class CreatePrivateProductService {
                     id: market.id,
                     name: encrypt(market.name)
                 },
-                secret
+                secret,
+                unit,
+                quantity
             })
 
             await productRepo.save(product);
@@ -77,7 +81,9 @@ export default class CreatePrivateProductService {
                 id: market.id,
                 name: encrypt(market.name)
             },
-            secret
+            secret,
+            unit,
+            quantity
         })
 
         await productRepo.save(product);

@@ -10,6 +10,7 @@ import UpdateProductImageService from '../services/Products/UpdateProductImageSe
 import UpdateProductService from '../services/Products/UpdateProductService';
 import AppError from '../errors/AppError';
 import uploadConfig from '../config/upload';
+import DeleteProductService from '../services/Products/DeleteProductService';
 
 const upload = multer(uploadConfig);
 
@@ -17,6 +18,7 @@ const productRouter = Router();
 
 productRouter.use(usePagination)
 
+// FIND BY MARKET
 productRouter.get('/public/:marketId', async (request, response) => {
     const { marketId } = request.params
     const productRepository = getCustomRepository(ProductRepository);
@@ -35,6 +37,7 @@ productRouter.get('/public/:marketId', async (request, response) => {
     return response.json(products)
 });
 
+// FIND SPECIFIC PRODUCT ON MARKET
 productRouter.get('/public/:marketId/:productId', async (request, response) => {
     const { marketId, productId } = request.params
     const productRepository = getCustomRepository(ProductRepository);
@@ -58,6 +61,8 @@ productRouter.get('/public/:marketId/:productId', async (request, response) => {
 
 productRouter.use(ensureAuth)
 
+
+// FIND AND DECRYPT PRODUCTS
 productRouter.get('/private', async (request, response) => {
     const productRepository = getCustomRepository(ProductRepository);
     const market_id = request.market.id;
@@ -70,8 +75,10 @@ productRouter.get('/private', async (request, response) => {
     return response.json(products)
 });
 
+
+// CREATE AND ENCRYPT PRODUCTS
 productRouter.post('/create/private', async (request, response) => {
-    const { name, price, promotion, category } = request.body;
+    const { name, price, promotion, category, quantity, unit } = request.body;
 
     const createProduct = new CreatePrivateProductService;
 
@@ -81,14 +88,17 @@ productRouter.post('/create/private', async (request, response) => {
         promotion,
         category,
         secret: true,
-        market_id: request.market.id
+        market_id: request.market.id,
+        quantity,
+        unit
     })
 
     return response.json(product)
 });
 
+// CREATE PUBLIC PRODUCTS
 productRouter.post('/create/public', async (request, response) => {
-    const { name, price, promotion, category } = request.body;
+    const { name, price, promotion, category, quantity, unit } = request.body;
 
     const createProduct = new CreatePublicProductService;
 
@@ -98,12 +108,16 @@ productRouter.post('/create/public', async (request, response) => {
         promotion,
         category,
         secret: false,
-        market_id: request.market.id
+        market_id: request.market.id,
+        quantity,
+        unit
     })
 
     return response.json(product)
 });
 
+
+// ADD IMAGE ON PRODUCT
 productRouter.patch(
     '/image/:product_id',
     upload.single('image'),
@@ -139,6 +153,18 @@ productRouter.put('/change/:product_id', async (request, response) => {
 
     return response.json(product)
 });
+
+// DELETE PRODUCTS
+productRouter.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const deleteProduct = new DeleteProductService();
+
+    await deleteProduct.execute(id);
+
+    return res.status(204).send();
+});
+
 
 
 export default productRouter;

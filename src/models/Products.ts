@@ -35,7 +35,11 @@ class Product {
     @JoinColumn({ name: 'market_id' })
     market: Market;
 
-    //* quantity: "KG" | "G" | "UN" */
+    @Column()
+    unit: "KG" | "G" | "UN"
+
+    @Column()
+    quantity: number;
 
     @Column()
     promotion: boolean;

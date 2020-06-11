@@ -12,11 +12,13 @@ interface Request {
     category: string;
     market_id: string;
     secret: boolean;
+    unit: "KG" | "G" | "UN";
+    quantity: number;
 }
 
 
 export default class CreatePublicProductService {
-    public async execute({ name, price, promotion, category, market_id, secret }: Request): Promise<Product> {
+    public async execute({ name, price, promotion, category, market_id, secret, unit, quantity }: Request): Promise<Product> {
         const productRepo = getCustomRepository(ProductRepository);
         const categoryRepo = getRepository(Category);
         const marketRepo = getRepository(Market)
@@ -48,7 +50,9 @@ export default class CreatePublicProductService {
                 id: market.id,
                 name: market.name
             },
-            secret
+            secret,
+            unit,
+            quantity
         })
 
         await productRepo.save(product);

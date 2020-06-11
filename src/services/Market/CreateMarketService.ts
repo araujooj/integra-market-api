@@ -7,10 +7,11 @@ interface Request {
     name: string;
     email: string;
     password: string;
+    city: string;
 }
 
 export default class CreateMarketService {
-    public async execute({ name, email, password }: Request): Promise<Market> {
+    public async execute({ name, email, password, city }: Request): Promise<Market> {
         const marketRepository = getRepository(Market);
 
         const checkMarketExists = await marketRepository.findOne({
@@ -27,6 +28,7 @@ export default class CreateMarketService {
             name,
             email,
             password: hashedPassword,
+            city,
         });
 
         await marketRepository.save(market);

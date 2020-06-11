@@ -33,7 +33,8 @@ class Market {
 
   // apiKey: string;
 
-  // city: string;
+  @Column()
+  city: string;
 
   @CreateDateColumn()
   created_at: Date;

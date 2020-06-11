@@ -21,10 +21,8 @@ marketRouter.get('/', async (request, response) => {
     return response.json(market)
 })
 
-marketRouter.use(ensureAuth)
-
 marketRouter.post('/', async (request, response) => {
-    const { name, email, password } = request.body;
+    const { name, email, password, city } = request.body;
 
     const createMarket = new CreateMarketService();
 
@@ -32,12 +30,15 @@ marketRouter.post('/', async (request, response) => {
         name,
         email,
         password,
+        city
     });
 
     delete market.password;
 
     return response.json(market);
 });
+
+marketRouter.use(ensureAuth)
 
 marketRouter.patch(
     '/avatar',
