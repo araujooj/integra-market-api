@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm';
+import multer from 'multer';
 import ensureAuth from '../middlewares/ensureAuth'
 import ProductRepository from '../repositories/productRepository';
 import CreatePublicProductService from '../services/Products/CreatePublicProductService';
 import CreatePrivateProductService from '../services/Products/CreatePrivateProductService';
 import usePagination from '../middlewares/usePagination';
+import UpdateProductImageService from '../services/Products/UpdateProductImageService';
 import UpdateProductService from '../services/Products/UpdateProductService';
 import AppError from '../errors/AppError';
+import uploadConfig from '../config/upload';
+
+const upload = multer(uploadConfig);
 
 const productRouter = Router();
 
@@ -98,6 +103,22 @@ productRouter.post('/create/public', async (request, response) => {
 
     return response.json(product)
 });
+
+productRouter.patch(
+    '/image/:product_id',
+    upload.single('image'),
+    async (request, response) => {
+        const { product_id } = request.params;
+        const updateImage = new UpdateProductImageService();
+
+        const market = await updateImage.execute({
+            product_id,
+            imageFilename: request.file.filename,
+        });
+
+        return response.json(market);
+    },
+);
 
 // * TODO -  Fix this endpoint
 productRouter.put('/change/:product_id', async (request, response) => {
