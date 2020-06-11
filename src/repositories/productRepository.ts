@@ -34,6 +34,7 @@ class ProductRepository extends Repository<Product> {
 
         products.forEach(product => {
             product.name = decrypt(product.name)
+            product.category.title = decrypt(product.category.title);
         })
 
         return products;
