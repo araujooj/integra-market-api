@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { getCustomRepository } from 'typeorm';
 import ensureAuth from '../middlewares/ensureAuth'
 import ProductRepository from '../repositories/productRepository';
-import CreateProductService from '../services/Products/CreateProductService';
+import CreatePublicProductService from '../services/Products/CreatePublicProductService';
+import CreatePrivateProductService from '../services/Products/CreatePrivateProductService';
 import usePagination from '../middlewares/usePagination';
 import UpdateProductService from '../services/Products/UpdateProductService';
+import AppError from '../errors/AppError';
 
 const productRouter = Router();
 
@@ -42,6 +44,10 @@ productRouter.get('/public/:marketId/:productId', async (request, response) => {
         }
     )
 
+    if (!product) {
+        throw new AppError('Product not found, please inform a real product', 401)
+    }
+
     return response.json(product)
 });
 
@@ -59,23 +65,41 @@ productRouter.get('/private', async (request, response) => {
     return response.json(products)
 });
 
-productRouter.post('/create', async (request, response) => {
-    const { name, price, promotion, category, secret } = request.body;
+productRouter.post('/create/private', async (request, response) => {
+    const { name, price, promotion, category } = request.body;
 
-    const createProduct = new CreateProductService;
+    const createProduct = new CreatePrivateProductService;
 
     const product = await createProduct.execute({
         name,
         price,
         promotion,
         category,
-        secret,
+        secret: true,
         market_id: request.market.id
     })
 
     return response.json(product)
 });
 
+productRouter.post('/create/public', async (request, response) => {
+    const { name, price, promotion, category } = request.body;
+
+    const createProduct = new CreatePublicProductService;
+
+    const product = await createProduct.execute({
+        name,
+        price,
+        promotion,
+        category,
+        secret: false,
+        market_id: request.market.id
+    })
+
+    return response.json(product)
+});
+
+// * TODO -  Fix this endpoint
 productRouter.put('/change/:product_id', async (request, response) => {
     const { name, price, promotion, category, secret } = request.body;
     const { product_id } = request.params;

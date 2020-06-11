@@ -7,6 +7,7 @@ import {
     ManyToOne,
     JoinColumn
 } from 'typeorm';
+import Category from './Category'
 import Market from "./Market";
 
 @Entity('products')
@@ -23,8 +24,9 @@ class Product {
     @Column()
     image: string;
 
-    @Column()
-    category: string;
+    @ManyToOne(() => Category, category => category.product, { eager: true })
+    @JoinColumn({ name: 'category_id' })
+    category: Category;
 
     @Column()
     secret: boolean;

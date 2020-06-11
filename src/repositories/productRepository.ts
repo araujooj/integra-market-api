@@ -30,13 +30,13 @@ class ProductRepository extends Repository<Product> {
             },
             skip,
             take,
-            loadEagerRelations: false,
         });
 
         products.forEach(product => {
-            product.category = decrypt(product.category);
             product.name = decrypt(product.name)
         })
+
+        console.log(products)
 
         return products;
     }
