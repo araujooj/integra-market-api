@@ -36,8 +36,6 @@ class ProductRepository extends Repository<Product> {
             product.name = decrypt(product.name)
         })
 
-        console.log(products)
-
         return products;
     }
 }

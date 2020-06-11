@@ -5,6 +5,7 @@ import Product from '../../models/Products';
 import Market from '../../models/Market';
 import ProductRepository from '../../repositories/productRepository';
 import Category from '../../models/Category';
+import decrypt from '../../utils/decrypt';
 
 interface Request {
     name: string;
@@ -28,25 +29,29 @@ export default class CreatePrivateProductService {
             throw new AppError('You need to inform which one supermarket have this product', 401)
         }
 
-        let getCategory = await categoryRepo.findOne({
-            where: { title: category },
-        });
+        const allCategories = await categoryRepo.find({
+            where: {
+                secret: true
+            }
+        })
 
-        if (!getCategory) {
-            getCategory = categoryRepo.create({ title: encrypt(category) });
-            await categoryRepo.save(getCategory);
-        }
+        allCategories.forEach(categories => {
+            categories.title = decrypt(categories.title)
+        })
 
+        const findCategory = allCategories.filter(categories => categories.title === category);
 
-        if (secret) {
+        if (!allCategories[0] || !findCategory[0]) {
+            const newCategory = categoryRepo.create({ title: encrypt(category), secret: true });
+            await categoryRepo.save(newCategory);
 
             const product = productRepo.create({
                 name: encrypt(name),
                 price,
                 promotion,
                 category: {
-                    id: getCategory.id,
-                    title: encrypt(getCategory.title)
+                    id: newCategory.id,
+                    title: encrypt(newCategory.title)
                 },
                 market: {
                     id: market.id,
@@ -61,16 +66,16 @@ export default class CreatePrivateProductService {
         }
 
         const product = productRepo.create({
-            name,
+            name: encrypt(name),
             price,
             promotion,
             category: {
-                id: getCategory.id,
-                title: getCategory.title
+                id: findCategory[0].id,
+                title: encrypt(findCategory[0].title)
             },
             market: {
                 id: market.id,
-                name: market.name
+                name: encrypt(market.name)
             },
             secret
         })

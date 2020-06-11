@@ -16,6 +16,9 @@ class Category {
     @Column()
     title: string;
 
+    @Column()
+    secret: boolean;
+
     @OneToMany(() => Product, product => product.category)
     product: Product;
 
