@@ -25,12 +25,16 @@
   ],
   "rules": {
     "no-underscore-dangle": "off",
-    "prettier/prettier": "error",
+    "prettier/prettier": "off",
     "class-methods-use-this": "off",
+    "no-param-reassign": "off",
     "@typescript-eslint/camelcase": "off",
-    "@typescript-eslint/no-unused-vars": ["error", {
-      "argsIgnorePattern": "_"
-    }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "_"
+      }
+    ],
     "import/extensions": [
       "error",
       "ignorePackages",
