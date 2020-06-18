@@ -1,32 +1,39 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import Product from './Products';
+import Market from './Market';
 
 @Entity('categories')
 class Category {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column()
-    title: string;
+  @Column()
+  title: string;
 
-    @Column()
-    secret: boolean;
+  @Column()
+  secret: boolean;
 
-    @OneToMany(() => Product, product => product.category)
-    product: Product;
+  @OneToMany(() => Product, product => product.category)
+  product: Product;
 
-    @CreateDateColumn()
-    created_at: Date;
+  @ManyToOne(() => Market, market => market.products, { eager: false })
+  @JoinColumn({ name: 'market_id' })
+  market: Market;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
 
 export default Category;

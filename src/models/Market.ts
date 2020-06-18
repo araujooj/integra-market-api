@@ -1,4 +1,3 @@
-
 import {
   Entity,
   Column,
@@ -8,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import Product from './Products';
+import Category from './Category';
 
 @Entity('market')
 class Market {
@@ -27,6 +27,9 @@ class Market {
 
   @OneToMany(() => Product, product => product.market)
   products: Product;
+
+  @OneToMany(() => Category, category => category.market)
+  categories: Category;
 
   @Column()
   avatar: string;
