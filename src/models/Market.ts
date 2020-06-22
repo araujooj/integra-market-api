@@ -34,6 +34,9 @@ class Market {
   @Column()
   avatar: string;
 
+  @Column()
+  uf: string;
+
   // apiKey: string;
 
   @Column()

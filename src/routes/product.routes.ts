@@ -35,19 +35,39 @@ productRouter.get('/public/:marketId', async (request, response) => {
 });
 
 // FIND PRODUCTS ON MARKET
-productRouter.get('/public/:marketId/:product', async (request, response) => {
-  const { marketId, product } = request.params;
-  const productRepository = getCustomRepository(ProductRepository);
+productRouter.get(
+  '/public/:marketId/products/:product',
+  async (request, response) => {
+    const { marketId, product } = request.params;
+    const productRepository = getCustomRepository(ProductRepository);
 
-  const products = await productRepository.findByProduct({
-    market_id: marketId,
-    product,
-    skip: request.pagination.realPage,
-    take: request.pagination.realTake,
-  });
+    const products = await productRepository.findByProduct({
+      market_id: marketId,
+      product,
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
+    });
 
-  return response.json(products);
-});
+    return response.json(products);
+  },
+);
+
+productRouter.get(
+  '/public/:marketId/categories/:categoryId',
+  async (request, response) => {
+    const { marketId, categoryId } = request.params;
+    const productRepository = getCustomRepository(ProductRepository);
+
+    const products = await productRepository.findByCategory({
+      market_id: marketId,
+      categoryId,
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
+    });
+
+    return response.json(products);
+  },
+);
 
 // FIND SPECIFIC PRODUCT ON MARKET
 productRouter.get('/public/:marketId/:productId', async (request, response) => {
