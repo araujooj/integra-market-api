@@ -1,16 +1,16 @@
 import { Router } from 'express';
-import { getCustomRepository } from 'typeorm';
 import multer from 'multer';
+import { getCustomRepository } from 'typeorm';
+import uploadConfig from '../config/upload';
+import AppError from '../errors/AppError';
 import ensureAuth from '../middlewares/ensureAuth';
-import ProductRepository from '../repositories/productRepository';
-import CreatePublicProductService from '../services/Products/CreatePublicProductService';
-import CreatePrivateProductService from '../services/Products/CreatePrivateProductService';
 import usePagination from '../middlewares/usePagination';
+import ProductRepository from '../repositories/productRepository';
+import CreatePrivateProductService from '../services/Products/CreatePrivateProductService';
+import CreatePublicProductService from '../services/Products/CreatePublicProductService';
+import DeleteProductService from '../services/Products/DeleteProductService';
 import UpdateProductImageService from '../services/Products/UpdateProductImageService';
 import UpdateProductService from '../services/Products/UpdateProductService';
-import AppError from '../errors/AppError';
-import uploadConfig from '../config/upload';
-import DeleteProductService from '../services/Products/DeleteProductService';
 
 const upload = multer(uploadConfig);
 const productRouter = Router();
@@ -34,7 +34,7 @@ productRouter.get('/public/:marketId', async (request, response) => {
   return response.json(products);
 });
 
-// FIND PRODUCTS ON MARKET
+// FIND SPECIFIC PRODUCTS ON MARKET
 productRouter.get(
   '/public/:marketId/products/:product',
   async (request, response) => {
@@ -52,6 +52,7 @@ productRouter.get(
   },
 );
 
+// TODO ABSTRAIR CATEGORYID PARA OS QUERY PARAMS
 productRouter.get(
   '/public/:marketId/categories/:categoryId',
   async (request, response) => {

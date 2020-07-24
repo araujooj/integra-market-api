@@ -79,9 +79,7 @@ class ProductRepository extends Repository<Product> {
 
     const products = await this.find({
       where: {
-        product: Like(`%${product}#%`),
-        secret: false,
-        market: market_id,
+        name: Like(`%${product}%`),
       },
       skip,
       take,

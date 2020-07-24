@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getRepository, getCustomRepository } from 'typeorm';
-import Category from '../models/Category';
+import { getCustomRepository } from 'typeorm';
 import CategoryRepository from '../repositories/categoryRepository';
 import usePagination from '../middlewares/usePagination';
 import ensureAuth from '../middlewares/ensureAuth';
@@ -9,12 +8,14 @@ const categoryRouter = Router();
 
 categoryRouter.use(usePagination);
 
-categoryRouter.get('/public', async (request, response) => {
-  const categoryRepository = getRepository(Category);
+categoryRouter.get('/public/:marketId', async (request, response) => {
+  const { marketId } = request.params;
+  const categoryRepository = getCustomRepository(CategoryRepository);
 
   const category = await categoryRepository.find({
     where: {
       secret: false,
+      market: marketId,
     },
   });
 
