@@ -1,11 +1,8 @@
 import { getRepository, getCustomRepository } from 'typeorm';
-import encrypt from '../../utils/encrypt';
 import AppError from '../../errors/AppError';
 import Product from '../../models/Products';
 import Market from '../../models/Market';
 import ProductRepository from '../../repositories/productRepository';
-import Category from '../../models/Category';
-import decrypt from '../../utils/decrypt';
 
 interface Request {
   name: string;
@@ -18,7 +15,7 @@ interface Request {
   quantity: number;
 }
 
-export default class CreatePrivateProductService {
+export default class CreateProductService {
   public async execute({
     name,
     price,
@@ -30,7 +27,6 @@ export default class CreatePrivateProductService {
     quantity,
   }: Request): Promise<Product> {
     const productRepo = getCustomRepository(ProductRepository);
-    const categoryRepo = getRepository(Category);
     const marketRepo = getRepository(Market);
 
     const market = await marketRepo.findOne(market_id);
@@ -42,42 +38,16 @@ export default class CreatePrivateProductService {
       );
     }
 
-    const allCategories = await categoryRepo.find({
-      where: {
-        secret: true,
-      },
+    let getCategory = await productRepo.findOne({
+      where: { category, market: market_id },
     });
 
-    allCategories.forEach(categories => {
-      categories.title = decrypt(categories.title);
-    });
-
-    const findCategory = allCategories.filter(
-      categories => categories.title === category,
-    );
-
-    if (!allCategories[0] || !findCategory[0]) {
-      const newCategory = categoryRepo.create({
-        title: encrypt(category),
-        secret: true,
-        market: {
-          id: market_id,
-        },
-      });
-      await categoryRepo.save(newCategory);
-
+    if (getCategory) {
       const product = productRepo.create({
-        name: encrypt(name),
+        name,
         price,
         promotion,
-        category: {
-          id: newCategory.id,
-          title: encrypt(newCategory.title),
-        },
-        market: {
-          id: market.id,
-          name: encrypt(market.name),
-        },
+        category: getCategory.category,
         secret,
         unit,
         quantity,
@@ -89,17 +59,10 @@ export default class CreatePrivateProductService {
     }
 
     const product = productRepo.create({
-      name: encrypt(name),
+      name,
       price,
       promotion,
-      category: {
-        id: findCategory[0].id,
-        title: encrypt(findCategory[0].title),
-      },
-      market: {
-        id: market.id,
-        name: encrypt(market.name),
-      },
+      category,
       secret,
       unit,
       quantity,

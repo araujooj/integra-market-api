@@ -1,54 +1,38 @@
 import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
-    ManyToOne,
-    JoinColumn
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import Category from './Category'
-import Market from "./Market";
+import MarketProducts from './MarketProducts';
 
 @Entity('products')
 class Product {
-    @PrimaryGeneratedColumn()
-    id: string;
+  @PrimaryGeneratedColumn()
+  id: string;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    price: number;
+  @Column()
+  gtin: string;
 
-    @Column()
-    image: string;
+  @Column()
+  image: string;
 
-    @ManyToOne(() => Category, category => category.product, { eager: true })
-    @JoinColumn({ name: 'category_id' })
-    category: Category;
+  @Column()
+  category: string;
 
-    @Column()
-    secret: boolean;
+  @OneToMany(() => MarketProducts, marketProducts => marketProducts.product)
+  market_products: MarketProducts[];
 
-    @ManyToOne(() => Market, market => market.products, { eager: false })
-    @JoinColumn({ name: 'market_id' })
-    market: Market;
+  @CreateDateColumn()
+  created_at: Date;
 
-    @Column()
-    unit: "KG" | "G" | "UN"
-
-    @Column()
-    quantity: number;
-
-    @Column()
-    promotion: boolean;
-
-    @CreateDateColumn()
-    created_at: Date;
-
-    @UpdateDateColumn()
-    updated_at: Date;
+  @UpdateDateColumn()
+  updated_at: Date;
 }
 
 export default Product;
