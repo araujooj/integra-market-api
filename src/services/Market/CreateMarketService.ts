@@ -9,6 +9,7 @@ interface Request {
   email: string;
   password: string;
   city: string;
+  uf: string;
 }
 
 export default class CreateMarketService {
@@ -17,6 +18,7 @@ export default class CreateMarketService {
     email,
     password,
     city,
+    uf,
   }: Request): Promise<Market> {
     const marketRepository = getCustomRepository(MarketRepository);
 
@@ -35,6 +37,7 @@ export default class CreateMarketService {
       email,
       password: hashedPassword,
       city,
+      uf,
     });
 
     await marketRepository.save(market);

@@ -3,72 +3,81 @@ import AppError from '../../errors/AppError';
 import Product from '../../models/Products';
 import Market from '../../models/Market';
 import ProductRepository from '../../repositories/productRepository';
+import MarketProducts from '../../models/MarketProducts';
 
 interface Request {
   name: string;
-  price: number;
-  promotion: boolean;
+  gtin: string;
   category: string;
   market_id: string;
+  price: number;
   secret: boolean;
-  unit: 'KG' | 'G' | 'UN';
+  promotion: boolean;
   quantity: number;
 }
 
 export default class CreateProductService {
   public async execute({
     name,
-    price,
-    promotion,
+    gtin,
     category,
     market_id,
-    secret,
-    unit,
+    price,
+    secret = false,
+    promotion = false,
     quantity,
-  }: Request): Promise<Product> {
-    const productRepo = getCustomRepository(ProductRepository);
-    const marketRepo = getRepository(Market);
+  }: Request): Promise<Product | MarketProducts> {
+    const productRepository = getCustomRepository(ProductRepository);
+    const marketProductRepository = getRepository(MarketProducts);
 
-    const market = await marketRepo.findOne(market_id);
-
-    if (!market) {
-      throw new AppError(
-        'You need to inform which one supermarket have this product',
-        401,
-      );
-    }
-
-    let getCategory = await productRepo.findOne({
-      where: { category, market: market_id },
+    const findGtin = await productRepository.findOne({
+      where: {
+        gtin,
+      },
     });
 
-    if (getCategory) {
-      const product = productRepo.create({
-        name,
+    if (findGtin) {
+      const marketProduct = marketProductRepository.create({
+        market: {
+          id: market_id,
+        },
+        product: {
+          id: findGtin.id,
+        },
         price,
-        promotion,
-        category: getCategory.category,
-        secret,
-        unit,
         quantity,
+        secret,
+        promotion,
       });
 
-      await productRepo.save(product);
+      await marketProductRepository.save(marketProduct);
 
-      return product;
+      return marketProduct;
     }
 
-    const product = productRepo.create({
+    const product = productRepository.create({
       name,
-      price,
-      promotion,
+      gtin,
       category,
-      secret,
-      unit,
-      quantity,
+      image: 'aaaa.jpg',
     });
 
-    await productRepo.save(product);
+    await productRepository.save(product);
+
+    const marketProduct = marketProductRepository.create({
+      market: {
+        id: market_id,
+      },
+      product: {
+        id: product.id,
+      },
+      price,
+      quantity,
+      secret,
+      promotion,
+    });
+
+    await marketProductRepository.save(marketProduct);
 
     return product;
   }

@@ -19,7 +19,7 @@ class MarketProducts {
   @JoinColumn({ name: 'market_id' })
   market: Market;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => Product, { eager: true })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

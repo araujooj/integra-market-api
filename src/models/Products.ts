@@ -25,7 +25,9 @@ class Product {
   @Column()
   category: string;
 
-  @OneToMany(() => MarketProducts, marketProducts => marketProducts.product)
+  @OneToMany(() => MarketProducts, marketProducts => marketProducts.product, {
+    cascade: true,
+  })
   market_products: MarketProducts[];
 
   @CreateDateColumn()

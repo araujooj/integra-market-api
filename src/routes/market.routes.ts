@@ -22,23 +22,8 @@ marketRouter.get('/', async (request, response) => {
   return response.json(market);
 });
 
-marketRouter.get('/:city', async (request, response) => {
-  const { city } = request.params;
-  const marketRepository = getCustomRepository(MarketRepository);
-
-  const market = await marketRepository.findByCity({
-    city,
-    skip: request.pagination.realPage,
-    take: request.pagination.realTake,
-  });
-
-  market.forEach(marketItem => delete marketItem.password);
-
-  return response.json(market);
-});
-
 marketRouter.post('/', async (request, response) => {
-  const { name, email, password, city } = request.body;
+  const { name, email, password, city, uf } = request.body;
 
   const createMarket = new CreateMarketService();
 
@@ -47,6 +32,7 @@ marketRouter.post('/', async (request, response) => {
     email,
     password,
     city,
+    uf,
   });
 
   delete market.password;
