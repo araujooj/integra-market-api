@@ -23,7 +23,10 @@ productRouter.get('/:market_id', async (request, response) => {
     const product = await marketProductRepository.find({
       where: {
         product_name: Like(`%${product_name}%`),
+        secret: false,
       },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
     });
 
     return response.json(product);
@@ -33,7 +36,10 @@ productRouter.get('/:market_id', async (request, response) => {
     const product = await marketProductRepository.find({
       where: {
         product_category: Like(`%${product_category}%`),
+        secret: false,
       },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
     });
 
     return response.json(product);
@@ -44,7 +50,10 @@ productRouter.get('/:market_id', async (request, response) => {
       where: {
         product_name: Like(`%${product_name}%`),
         product_category: Like(`%${product_category}%`),
+        secret: false,
       },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
     });
 
     return response.json(product);
@@ -53,7 +62,10 @@ productRouter.get('/:market_id', async (request, response) => {
   const product = await marketProductRepository.find({
     where: {
       market_id,
+      secret: false,
     },
+    skip: request.pagination.realPage,
+    take: request.pagination.realTake,
   });
 
   return response.json(product);
@@ -63,7 +75,7 @@ productRouter.get('/:market_id/:product_id', async (request, response) => {
   const { market_id, product_id } = request.params;
   const productRepository = getRepository(MarketProducts);
 
-  const product = await productRepository.find({
+  const product = await productRepository.findOne({
     where: {
       market_id,
       product_id,
