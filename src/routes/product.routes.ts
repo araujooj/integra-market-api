@@ -5,18 +5,52 @@ import ensureAuth from '../middlewares/ensureAuth';
 import usePagination from '../middlewares/usePagination';
 import CreateProductService from '../services/Products/CreateProductService';
 import DeleteProductService from '../services/Products/DeleteProductService';
-import { getCustomRepository, getRepository } from 'typeorm';
+import { getCustomRepository, getRepository, Like } from 'typeorm';
 import ProductRepository from '../repositories/productRepository';
 import MarketProducts from '../models/MarketProducts';
 
 const upload = multer(uploadConfig);
 const productRouter = Router();
 
+productRouter.use(usePagination);
+
 productRouter.get('/:market_id', async (request, response) => {
   const { market_id } = request.params;
-  const productRepository = getRepository(MarketProducts);
+  const { product_name, product_category } = request.query;
+  const marketProductRepository = getRepository(MarketProducts);
 
-  const product = await productRepository.find({
+  if (product_name) {
+    const product = await marketProductRepository.find({
+      where: {
+        product_name: Like(`%${product_name}%`),
+      },
+    });
+
+    return response.json(product);
+  }
+
+  if (product_category) {
+    const product = await marketProductRepository.find({
+      where: {
+        product_category: Like(`%${product_category}%`),
+      },
+    });
+
+    return response.json(product);
+  }
+
+  if (product_name && product_category) {
+    const product = await marketProductRepository.find({
+      where: {
+        product_name: Like(`%${product_name}%`),
+        product_category: Like(`%${product_category}%`),
+      },
+    });
+
+    return response.json(product);
+  }
+
+  const product = await marketProductRepository.find({
     where: {
       market_id,
     },
@@ -25,7 +59,21 @@ productRouter.get('/:market_id', async (request, response) => {
   return response.json(product);
 });
 
-productRouter.use(usePagination, ensureAuth);
+productRouter.get('/:market_id/:product_id', async (request, response) => {
+  const { market_id, product_id } = request.params;
+  const productRepository = getRepository(MarketProducts);
+
+  const product = await productRepository.find({
+    where: {
+      market_id,
+      product_id,
+    },
+  });
+
+  return response.json(product);
+});
+
+productRouter.use(ensureAuth);
 
 // CREATE PUBLIC PRODUCTS
 productRouter.post('/', async (request, response) => {
@@ -41,7 +89,7 @@ productRouter.post('/', async (request, response) => {
 
   const createProduct = new CreateProductService();
 
-  await createProduct.execute({
+  const product = await createProduct.execute({
     name,
     gtin,
     category,
@@ -52,7 +100,7 @@ productRouter.post('/', async (request, response) => {
     market_id: request.market.id,
   });
 
-  return response.status(204).send();
+  return response.json(product);
 });
 
 // DELETE PRODUCTS

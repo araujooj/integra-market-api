@@ -48,6 +48,8 @@ export default class CreateProductService {
         quantity,
         secret,
         promotion,
+        product_name: name,
+        product_category: category,
       });
 
       await marketProductRepository.save(marketProduct);
@@ -59,7 +61,7 @@ export default class CreateProductService {
       name,
       gtin,
       category,
-      image: 'aaaa.jpg',
+      image: `https://cdn-cosmos.bluesoft.com.br/products/${gtin}`,
     });
 
     await productRepository.save(product);
@@ -75,6 +77,8 @@ export default class CreateProductService {
       quantity,
       secret,
       promotion,
+      product_name: name,
+      product_category: category,
     });
 
     await marketProductRepository.save(marketProduct);

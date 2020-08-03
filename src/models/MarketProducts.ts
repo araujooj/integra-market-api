@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import Market from './Market';
 import Product from './Products';
@@ -22,6 +23,12 @@ class MarketProducts {
   @ManyToOne(() => Product, { eager: true })
   @JoinColumn({ name: 'product_id' })
   product: Product;
+
+  @Column()
+  product_name: string;
+
+  @Column()
+  product_category: string;
 
   @Column()
   product_id: string;
