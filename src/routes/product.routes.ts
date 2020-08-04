@@ -16,14 +16,15 @@ productRouter.use(usePagination);
 
 productRouter.get('/:market_id', async (request, response) => {
   const { market_id } = request.params;
-  const { product_name, product_category } = request.query;
+  const { product_name, product_category, secret = false } = request.query;
   const marketProductRepository = getRepository(MarketProducts);
 
   if (product_name) {
     const product = await marketProductRepository.find({
       where: {
+        market_id,
         product_name: Like(`%${product_name}%`),
-        secret: false,
+        secret,
       },
       skip: request.pagination.realPage,
       take: request.pagination.realTake,
@@ -35,8 +36,9 @@ productRouter.get('/:market_id', async (request, response) => {
   if (product_category) {
     const product = await marketProductRepository.find({
       where: {
+        market_id,
         product_category: Like(`%${product_category}%`),
-        secret: false,
+        secret,
       },
       skip: request.pagination.realPage,
       take: request.pagination.realTake,
@@ -48,9 +50,10 @@ productRouter.get('/:market_id', async (request, response) => {
   if (product_name && product_category) {
     const product = await marketProductRepository.find({
       where: {
+        market_id,
         product_name: Like(`%${product_name}%`),
         product_category: Like(`%${product_category}%`),
-        secret: false,
+        secret,
       },
       skip: request.pagination.realPage,
       take: request.pagination.realTake,
@@ -62,7 +65,7 @@ productRouter.get('/:market_id', async (request, response) => {
   const product = await marketProductRepository.find({
     where: {
       market_id,
-      secret: false,
+      secret,
     },
     skip: request.pagination.realPage,
     take: request.pagination.realTake,
@@ -73,22 +76,51 @@ productRouter.get('/:market_id', async (request, response) => {
 
 productRouter.get('/:market_id/:product_id', async (request, response) => {
   const { market_id, product_id } = request.params;
+  const { secret = false } = request.query;
   const productRepository = getRepository(MarketProducts);
 
-  const product = await productRepository.findOne({
+  const findProduct = await productRepository.findOne({
     where: {
       market_id,
-      product_id,
+      id: product_id,
+      secret,
     },
   });
 
-  return response.json(product);
+  return response.json(findProduct);
 });
 
 productRouter.use(ensureAuth);
 
 // CREATE PUBLIC PRODUCTS
 productRouter.post('/', async (request, response) => {
+  const {
+    name,
+    gtin,
+    category,
+    price,
+    secret,
+    promotion,
+    quantity,
+  } = request.body;
+
+  const createProduct = new CreateProductService();
+
+  const product = await createProduct.execute({
+    name,
+    gtin,
+    category,
+    price,
+    secret,
+    promotion,
+    quantity,
+    market_id: request.market.id,
+  });
+
+  return response.json(product);
+});
+
+productRouter.post('/import', async (request, response) => {
   const {
     name,
     gtin,

@@ -7,15 +7,25 @@ import UpdateMarketAvatarService from '../services/Market/UpdateMarketAvatarServ
 import ensureAuth from '../middlewares/ensureAuth';
 import MarketRepository from '../repositories/marketRepository';
 import usePagination from '../middlewares/usePagination';
+import AppError from '../errors/AppError';
 
 const marketRouter = Router();
 const upload = multer(uploadConfig);
 marketRouter.use(usePagination);
 
-marketRouter.get('/', async (request, response) => {
+marketRouter.get('/:city', async (request, response) => {
   const marketRepository = getCustomRepository(MarketRepository);
+  const { city } = request.params;
 
-  const market = await marketRepository.find();
+  if (!city) {
+    throw new AppError('You need to inform a city to find markets');
+  }
+
+  const market = await marketRepository.findByCity({
+    city,
+    skip: request.pagination.realPage,
+    take: request.pagination.realTake,
+  });
 
   market.forEach(marketItem => delete marketItem.password);
 
