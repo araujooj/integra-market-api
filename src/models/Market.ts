@@ -6,8 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import Product from './Products';
-import Category from './Category';
+import MarketProducts from './MarketProducts';
 
 @Entity('market')
 class Market {
@@ -23,24 +22,19 @@ class Market {
   @Column()
   password: string;
 
-  // orders: string;
-
-  @OneToMany(() => Product, product => product.market)
-  products: Product;
-
-  @OneToMany(() => Category, category => category.market)
-  categories: Category;
-
   @Column()
   avatar: string;
 
   @Column()
   uf: string;
 
-  // apiKey: string;
-
   @Column()
   city: string;
+
+  @OneToMany(() => MarketProducts, marketProducts => marketProducts.market, {
+    cascade: true,
+  })
+  market_products: MarketProducts[];
 
   @CreateDateColumn()
   created_at: Date;

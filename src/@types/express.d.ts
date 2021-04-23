@@ -7,5 +7,6 @@ declare namespace Express {
       realPage: number;
       realTake: number;
     };
+    query: string;
   }
 }

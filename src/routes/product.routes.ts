@@ -1,181 +1,146 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { getCustomRepository } from 'typeorm';
 import uploadConfig from '../config/upload';
-import AppError from '../errors/AppError';
 import ensureAuth from '../middlewares/ensureAuth';
 import usePagination from '../middlewares/usePagination';
-import ProductRepository from '../repositories/productRepository';
-import CreatePrivateProductService from '../services/Products/CreatePrivateProductService';
-import CreatePublicProductService from '../services/Products/CreatePublicProductService';
+import CreateProductService from '../services/Products/CreateProductService';
 import DeleteProductService from '../services/Products/DeleteProductService';
-import UpdateProductImageService from '../services/Products/UpdateProductImageService';
-import UpdateProductService from '../services/Products/UpdateProductService';
+import { getCustomRepository, getRepository, Like } from 'typeorm';
+import ProductRepository from '../repositories/productRepository';
+import MarketProducts from '../models/MarketProducts';
 
 const upload = multer(uploadConfig);
 const productRouter = Router();
 
 productRouter.use(usePagination);
 
-// FIND BY MARKET
-productRouter.get('/public/:marketId', async (request, response) => {
-  const { marketId } = request.params;
-  const productRepository = getCustomRepository(ProductRepository);
+productRouter.get('/:market_id', async (request, response) => {
+  const { market_id } = request.params;
+  const { product_name, product_category, secret = false } = request.query;
+  const marketProductRepository = getRepository(MarketProducts);
 
-  const products = await productRepository.find({
+  if (product_name) {
+    const product = await marketProductRepository.find({
+      where: {
+        market_id,
+        product_name: Like(`%${product_name}%`),
+        secret,
+      },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
+    });
+
+    return response.json(product);
+  }
+
+  if (product_category) {
+    const product = await marketProductRepository.find({
+      where: {
+        market_id,
+        product_category: Like(`%${product_category}%`),
+        secret,
+      },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
+    });
+
+    return response.json(product);
+  }
+
+  if (product_name && product_category) {
+    const product = await marketProductRepository.find({
+      where: {
+        market_id,
+        product_name: Like(`%${product_name}%`),
+        product_category: Like(`%${product_category}%`),
+        secret,
+      },
+      skip: request.pagination.realPage,
+      take: request.pagination.realTake,
+    });
+
+    return response.json(product);
+  }
+
+  const product = await marketProductRepository.find({
     where: {
-      market: marketId,
-      secret: false,
+      market_id,
+      secret,
     },
     skip: request.pagination.realPage,
     take: request.pagination.realTake,
   });
 
-  return response.json(products);
+  return response.json(product);
 });
 
-// FIND SPECIFIC PRODUCTS ON MARKET
-productRouter.get(
-  '/public/:marketId/products/:product',
-  async (request, response) => {
-    const { marketId, product } = request.params;
-    const productRepository = getCustomRepository(ProductRepository);
+productRouter.get('/:market_id/:product_id', async (request, response) => {
+  const { market_id, product_id } = request.params;
+  const { secret = false } = request.query;
+  const productRepository = getRepository(MarketProducts);
 
-    const products = await productRepository.findByProduct({
-      market_id: marketId,
-      product,
-      skip: request.pagination.realPage,
-      take: request.pagination.realTake,
-    });
-
-    return response.json(products);
-  },
-);
-
-// TODO ABSTRAIR CATEGORYID PARA OS QUERY PARAMS
-productRouter.get(
-  '/public/:marketId/categories/:categoryId',
-  async (request, response) => {
-    const { marketId, categoryId } = request.params;
-    const productRepository = getCustomRepository(ProductRepository);
-
-    const products = await productRepository.findByCategory({
-      market_id: marketId,
-      categoryId,
-      skip: request.pagination.realPage,
-      take: request.pagination.realTake,
-    });
-
-    return response.json(products);
-  },
-);
-
-// FIND SPECIFIC PRODUCT ON MARKET
-productRouter.get('/public/:marketId/:productId', async (request, response) => {
-  const { marketId, productId } = request.params;
-  const productRepository = getCustomRepository(ProductRepository);
-
-  const product = await productRepository.findOne({
+  const findProduct = await productRepository.findOne({
     where: {
-      market: marketId,
-      secret: false,
-      id: productId,
+      market_id,
+      id: product_id,
+      secret,
     },
   });
 
-  if (!product) {
-    throw new AppError('Product not found, please inform a real product', 401);
-  }
-
-  return response.json(product);
+  return response.json(findProduct);
 });
 
 productRouter.use(ensureAuth);
 
-// FIND AND DECRYPT PRODUCTS
-productRouter.get('/private', async (request, response) => {
-  const productRepository = getCustomRepository(ProductRepository);
-  const market_id = request.market.id;
-  const products = await productRepository.findAndDecrypt({
-    market_id,
-    skip: request.pagination.realPage,
-    take: request.pagination.realTake,
-  });
-
-  return response.json(products);
-});
-
-// CREATE AND ENCRYPT PRODUCTS
-productRouter.post('/create/private', async (request, response) => {
-  const { name, price, promotion, category, quantity, unit } = request.body;
-
-  const createProduct = new CreatePrivateProductService();
-
-  const product = await createProduct.execute({
-    name,
-    price,
-    promotion,
-    category,
-    secret: true,
-    market_id: request.market.id,
-    quantity,
-    unit,
-  });
-
-  return response.json(product);
-});
-
 // CREATE PUBLIC PRODUCTS
-productRouter.post('/create/public', async (request, response) => {
-  const { name, price, promotion, category, quantity, unit } = request.body;
+productRouter.post('/', async (request, response) => {
+  const {
+    name,
+    gtin,
+    category,
+    price,
+    secret,
+    promotion,
+    quantity,
+  } = request.body;
 
-  const createProduct = new CreatePublicProductService();
+  const createProduct = new CreateProductService();
 
   const product = await createProduct.execute({
     name,
-    price,
-    promotion,
+    gtin,
     category,
-    secret: false,
-    market_id: request.market.id,
+    price,
+    secret,
+    promotion,
     quantity,
-    unit,
+    market_id: request.market.id,
   });
 
   return response.json(product);
 });
 
-// ADD IMAGE ON PRODUCT
-productRouter.patch(
-  '/image/:product_id',
-  upload.single('image'),
-  async (request, response) => {
-    const { product_id } = request.params;
-    const updateImage = new UpdateProductImageService();
-
-    const market = await updateImage.execute({
-      product_id,
-      imageFilename: request.file.filename,
-    });
-
-    return response.json(market);
-  },
-);
-
-// * TODO -  Fix this endpoint
-productRouter.put('/change/:product_id', async (request, response) => {
-  const { name, price, promotion, category, secret } = request.body;
-  const { product_id } = request.params;
-
-  const updateProduct = new UpdateProductService();
-
-  const product = await updateProduct.execute({
+productRouter.post('/import', async (request, response) => {
+  const {
     name,
-    product_id,
-    price,
-    promotion,
+    gtin,
     category,
+    price,
     secret,
+    promotion,
+    quantity,
+  } = request.body;
+
+  const createProduct = new CreateProductService();
+
+  const product = await createProduct.execute({
+    name,
+    gtin,
+    category,
+    price,
+    secret,
+    promotion,
+    quantity,
     market_id: request.market.id,
   });
 
